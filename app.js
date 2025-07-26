@@ -23,8 +23,8 @@ const cors = require("cors");
 const morganFormat = config.get("morganFormat");
 const logDirPath = config.get("logDirPath");
 const port = config.get("port");
-const privkeyPath = config.get("privkeyPath");
-const fullchainPath = config.get("fullchainPath");
+const privkeyPath = config.has("privkeyPath") ? config.get("privkeyPath") : null;
+const fullchainPath = config.has("fullchainPath") ? config.get("fullchainPath") : null;
 
 const htdocsPath = config.get("htdocsPath");
 const defaultZ = config.get("defaultZ");
@@ -201,6 +201,11 @@ app.use(cors());
 
 //app.use(express.static(path.join(__dirname, htdocsPath)))
 
+// Redirect root path to /unvt/
+app.get('/', (req, res) => {
+  res.redirect('/unvt/');
+});
+
 app.use("/unvt", express.static("public"));
 app.use("/unvt/", indexRouter);
 app.use("/unvt/auth", authRouter); //after app.use('/', indexRouter)
@@ -231,12 +236,12 @@ app.use(function (err, req, res, next) {
 // Toggle HTTP/HTTPS mode via environment variable
 const useHttp = process.env.USE_HTTP === 'true';
 
-if (useHttp && fs.existsSync(privkeyPath) && fs.existsSync(fullchainPath)) {
+if (useHttp) {
   // Start as HTTP server
   app.listen(port, () => {
     console.log(`HTTP server running at Port ${port} ...`);
   });
-} else {
+} else if (privkeyPath && fullchainPath && fs.existsSync(privkeyPath) && fs.existsSync(fullchainPath)) {
   // Start as HTTPS server
   spdy
     .createServer(
@@ -249,4 +254,7 @@ if (useHttp && fs.existsSync(privkeyPath) && fs.existsSync(fullchainPath)) {
     .listen(port, () => {
       console.log(`HTTPS server running at Port ${port} ...`);
     });
+} else {
+  console.error('Error: SSL certificate files not found. Please set USE_HTTP=true for development or provide valid certificate paths.');
+  process.exit(1);
 }

@@ -21,6 +21,7 @@ services:
       - ./mbtiles:/app/mbtiles
       - ./config:/app/config
       - ./log:/app/log
+      - /home/yuiseki/src/github.com/yuiseki/planetiler-ai/data:/app/external-data
     depends_on:
       - mysql
     restart: unless-stopped

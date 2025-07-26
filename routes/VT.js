@@ -35,10 +35,12 @@ const getMBTiles = async (t, z, x, y) => {
       mbtilesPath = `${mbtilesDir}/${t}/${stname}.mbtiles`
       mbtilesPath2 = `${mbtilesDir}/${t}/${stname}.mbtiles`
       mbtilesPath3 = `${mbtilesDir}/${t}/${stname}.mbtiles`
+      console.log(`Debug: Using small-scale tile path: ${mbtilesPath}`)
       } else {
       mbtilesPath = `${mbtilesDir}/${t}/0-0-0.mbtiles`
       mbtilesPath2 = `${mbtilesDir}/${t}/0-0-0.mbtiles`
       mbtilesPath3 = `${mbtilesDir}/${t}/0-0-0.mbtiles`
+      console.log(`Debug: Using default tile path: ${mbtilesPath}`)
       }
   } else {
     mbtilesPath =
@@ -57,6 +59,7 @@ const getMBTiles = async (t, z, x, y) => {
       resolve(mbtilesPool[mbtilesPath3].mbtiles)
     } else {
       if (fs.existsSync(mbtilesPath)) {
+        console.log(`Debug: Found mbtiles file: ${mbtilesPath}`)
         new MBTiles(`${mbtilesPath}?mode=ro`, (err, mbtiles) => {
           if (err) {
             reject(new Error(`${mbtilesPath} could not open.`))
@@ -91,6 +94,10 @@ const getMBTiles = async (t, z, x, y) => {
         }) 
 //edit until here
       } else {
+        console.log(`Debug: MBTiles file not found. Tried paths:`)
+        console.log(`  1. ${mbtilesPath}`)
+        console.log(`  2. ${mbtilesPath2}`)
+        console.log(`  3. ${mbtilesPath3}`)
         reject(new Error(`${mbtilesPath} was not found.`))
       }
     }
